@@ -1,102 +1,34 @@
 function getSheetData() {
-  // Open the spreadsheet by ID and sheet by name
+  // Open the spreadsheet and the specific sheet
   var sheet = SpreadsheetApp.openById('1R2UKLYvJFPJLMU7CuN3LO4Ycj7Rf_kgvROzSO0hPXTo').getSheetByName('Data');
   
-  // Check if sheet exists
+  // Ensure the sheet exists
   if (!sheet) {
     Logger.log('Sheet not found');
     return HtmlService.createHtmlOutput('<p>Error: Sheet not found</p>');
   }
 
   var lastRow = sheet.getLastRow();
-  Logger.log('Last Row: ' + lastRow); // Log the last row to check if there is data
-  
-  // Check if there is any data
+  Logger.log('Last Row: ' + lastRow);  // Check the last row
+
+  // Check if there is data in the sheet
   if (lastRow === 0) {
     Logger.log('No data available');
     return HtmlService.createHtmlOutput('<p>No data available</p>');
   }
 
-  // Fetch data from columns D to K (last row only)
-  var data = sheet.getRange(lastRow, 4, 1, 8).getValues()[0];
-  Logger.log('Fetched Data: ' + JSON.stringify(data)); // Log the fetched data
+  // Fetch data from columns D to K (last row)
+  var data = sheet.getRange(lastRow, 4, 1, 8).getValues()[0]; // Get values from last row, columns D to K
+  Logger.log('Fetched Data: ' + JSON.stringify(data));  // Log the fetched data
+  
+  // Check if data is coming through
+  if (!data || data.length === 0) {
+    Logger.log('No data in the fetched range');
+    return HtmlService.createHtmlOutput('<p>No data available in the specified range</p>');
+  }
 
-  // Process the data to extract only numbers
-  var processedData = data.map(item => item.toString().replace(/[^\d.-]/g, ''));
-  Logger.log('Processed Data: ' + JSON.stringify(processedData)); // Log the processed data
-
-  // Define the parameters and their corresponding units
-  var parameters = [
-    { label: "Wind Speed", value: processedData[0], unit: "m/s" },
-    { label: "Ambient Temperature", value: processedData[1], unit: "°C" },
-    { label: "Humidity", value: processedData[2], unit: "%" },
-    { label: "Sound Above Water", value: processedData[3], unit: "dB" },
-    { label: "pH Level", value: processedData[4], unit: "" },
-    { label: "Turbidity", value: processedData[5], unit: "NTU" },
-    { label: "Sound Below Water", value: processedData[6], unit: "dB" },
-    { label: "Water Temperature", value: processedData[7], unit: "°C" }
-  ];
-
-  // Create the HTML output structure
-  var result = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-        body {
-          font-family: 'Poppins', sans-serif;
-          margin: 0;
-          padding: 0;
-          background: transparent;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          flex-direction: column;
-        }
-        .container {
-          width: 90%;
-          max-width: 600px;
-        }
-        .parameter-box {
-          margin-bottom: 16px;
-          background: rgba(255, 255, 255, 0.5);
-          border-radius: 12px;
-          border: 1px solid rgba(234, 234, 234, 0.5);
-          padding: 16px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          text-align: center;
-        }
-        .parameter-box:last-child {
-          margin-bottom: 0;
-        }
-        .label {
-          font-size: 1.2em;
-          font-weight: 600;
-          color: #0038A8;
-          margin-bottom: 4px;
-        }
-        .value {
-          font-size: 1.5em;
-          font-weight: 400;
-          color: #333;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        ${parameters.map(param => `
-          <div class="parameter-box">
-            <div class="label">${param.label}</div>
-            <div class="value">${param.value} ${param.unit}</div>
-          </div>
-        `).join('')}
-      </div>
-    </body>
-    </html>
-  `;
-
+  // Return a basic HTML output for testing
+  var result = `<p>Fetched Data: ${JSON.stringify(data)}</p>`;
   return HtmlService.createHtmlOutput(result);
 }
 
